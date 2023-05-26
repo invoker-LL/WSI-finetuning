@@ -1,4 +1,4 @@
-# WSI-finetuning
+# WSI-FT (Whole Slide Image Finetuning )
 This is the official repository for our CVPR 2023 paper.
 
 [Task-Specific Fine-Tuning via Variational Information Bottleneck for Weakly-Supervised Pathology Whole Slide Image Classification](https://openaccess.thecvf.com/content/CVPR2023/html/Li_Task-Specific_Fine-Tuning_via_Variational_Information_Bottleneck_for_Weakly-Supervised_Pathology_Whole_CVPR_2023_paper.html)
