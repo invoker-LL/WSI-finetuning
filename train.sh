@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=0 python train_2_stage.py --exp_code 'clam_cam16_res50_ostu_init'
