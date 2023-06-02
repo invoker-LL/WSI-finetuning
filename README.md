@@ -27,6 +27,10 @@ bash vib_train.sh
 ## Stage-2 (wsi-finetuning with topK):
 updating.
 
+1) Collecting top-k patches of WSI by inference vib model, save in h5 form.
+2) Perform end-to-end training.
+
+
 ## Citation
 If you find this repository useful, please consider giving a star :star: and citation :t-rex::
 ```
