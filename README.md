@@ -2,7 +2,8 @@
 This is the official repository for our CVPR 2023 paper.
 
 [Task-Specific Fine-Tuning via Variational Information Bottleneck for Weakly-Supervised Pathology Whole Slide Image Classification](https://openaccess.thecvf.com/content/CVPR2023/html/Li_Task-Specific_Fine-Tuning_via_Variational_Information_Bottleneck_for_Weakly-Supervised_Pathology_Whole_CVPR_2023_paper.html)
-
+## Enviroment:
+Check packages in requirements.txt. Despite torch and numpy for training, `openslid-python` and `nvidia-dali-cuda110` are quite important. 
 ## Stage-1a (baseline): 
 Mostly folked from [CLAM](https://github.com/mahmoodlab/CLAM), with minor modification. So just follow the [docs](https://github.com/mahmoodlab/CLAM/tree/master/docs) to perform baseline, or with following steps:
 
