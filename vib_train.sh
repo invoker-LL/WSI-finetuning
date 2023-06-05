@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=2 python train_stage1.py --exp_code 'clam_camelyon16_ostu_res50_pretrain_vib' --vib
