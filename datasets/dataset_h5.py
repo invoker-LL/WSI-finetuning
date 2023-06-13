@@ -28,7 +28,6 @@ def eval_transforms(pretrained=False):
 
 	trnsfrms_val = transforms.Compose(
 					[
-						# transforms.Resize(256),
 					 transforms.ToTensor(),
 					 transforms.Normalize(mean = mean, std = std)
 					]
@@ -321,7 +320,7 @@ class Whole_Slide_Bag_FP_SAVE(Dataset):
 				 pretrained=False,
 				 custom_transforms=None,
 				 custom_downsample=1,
-				 target_patch_size=-1
+				 target_patch_size=-1,select_idx=None,
 				 ):
 		"""
 		Args:
@@ -334,8 +333,6 @@ class Whole_Slide_Bag_FP_SAVE(Dataset):
 		self.pretrained = pretrained
 		self.wsi = wsi
 		self.roi_transforms = simple_transforms(pretrained=pretrained)
-
-
 		self.file_path = file_path
 		# pdb.set_trace()
 		with h5py.File(self.file_path, "r") as f:
@@ -349,33 +346,24 @@ class Whole_Slide_Bag_FP_SAVE(Dataset):
 				self.target_patch_size = (self.patch_size // custom_downsample,) * 2
 			else:
 				self.target_patch_size = None
-		self.summary()
+		with h5py.File(self.file_path, 'r') as hdf5_file:
+			dset = np.array(hdf5_file['coords'])
+		if select_idx is not None:
+			self.coords_new = dset[select_idx]
+		else:
+			self.coords_new = dset
+		self.length = self.coords_new.shape[0]
 
 	def __len__(self):
 		return self.length
 
-	def summary(self):
-		hdf5_file = h5py.File(self.file_path, "r")
-		dset = hdf5_file['coords']
-		for name, value in dset.attrs.items():
-			print(name, value)
-
-		print('\nfeature extraction settings')
-		print('target patch size: ', self.target_patch_size)
-		print('pretrained: ', self.pretrained)
-		print('transformations: ', self.roi_transforms)
-
 	def __getitem__(self, idx):
-		with h5py.File(self.file_path, 'r') as hdf5_file:
-			coord = np.asarray(hdf5_file['coords'][idx])
-			label = np.asarray(hdf5_file['labels'][idx])
+		coord = np.asarray(self.coords_new[idx])
 		img = self.wsi.read_region(coord, self.patch_level, (self.patch_size, self.patch_size)).convert('RGB')
-
 		if self.target_patch_size is not None:
 			img = img.resize(self.target_patch_size)
 		img = self.roi_transforms(img).unsqueeze(0)
-		#
-		return img, np.append(coord, label)
+		return img, coord
 
 class Dataset_All_Bags(Dataset):
 
