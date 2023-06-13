@@ -26,10 +26,18 @@ bash vib_train.sh
 ```
 
 ## Stage-2 (wsi-finetuning with topK):
-updating.
+1) Collecting top-k patches of WSI by inference vib model, save in pt form.
+```
+bash extract_topk_rois.sh
+```
 
-1) Collecting top-k patches of WSI by inference vib model, save in h5 form.
 2) Perform end-to-end training.
+```
+bash e2e_train.sh
+```
+
+## Stage-3 (training wsi head with fine-tuned patch backbone):
+Now you can use finetuned patch bakcbone in stage-2 to generate patch features, then run stage-1 again with the new features.
 
 
 ## Citation
