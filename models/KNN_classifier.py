@@ -1,11 +1,8 @@
 from sklearn.neighbors import KNeighborsClassifier
-import numpy as np
-import torch
-from torch.utils.data import DataLoader
 import os, pdb
 from utils.utils import *
-os.environ['CUDA_VISIBLE_DEVICES']='4'
-from datasets.dataset_generic import Generic_WSI_Classification_Dataset, Generic_MIL_Dataset
+os.environ['CUDA_VISIBLE_DEVICES']='0'
+from datasets.dataset_generic import Generic_MIL_Dataset
 
 split_dir = "../splits/task_brca/"
 data_root_dir = "../data_feat"
