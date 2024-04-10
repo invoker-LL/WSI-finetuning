@@ -78,6 +78,8 @@ args:
     subtyping: whether it's a subtyping problem
 """
 mse_loss = torch.nn.MSELoss()
+# ce_loss_forKL = torch.nn.CrossEntropyLoss()
+from torch.nn.functional import binary_cross_entropy as ce_loss_forKL
 class CLAM_SB(nn.Module):
     def __init__(self, gate = True, size_arg = "small", dropout = False, k_sample=8, n_classes=2,
         instance_loss_fn=nn.CrossEntropyLoss(), subtyping=False):
@@ -99,8 +101,7 @@ class CLAM_SB(nn.Module):
         self.attention_net = attention_net
         self.classifiers = nn.Linear(size[1], n_classes)
         # instance_classifiers = [nn.Linear(size[1], 1) for i in range(n_classes)]
-        xx = [nn.Linear(size[1], size[2]),
-            nn.Tanh(),nn.Linear(size[2], 1)]
+
         self.instance_classifier = nn.Linear(size[1], 1)
         # self.instance_classifier = nn.Sequential(*xx)
         self.k_sample = k_sample
@@ -133,20 +134,27 @@ class CLAM_SB(nn.Module):
                 testing=False, instance_mask=None):
         h = self.fc(h)
         total_inst_loss = torch.tensor(0)
-        # pdb.set_trace()
+
         if self.update_vib: # vib here
             instance_pred = self.instance_classifier(h)
             inst_logits = torch.nn.functional.logsigmoid(instance_pred)
 
             z_mask = self.reparameterize(p_i=inst_logits, tau=0.1)
             sigmoid_logits = torch.sigmoid(instance_pred)
+
+            # option 1: use binary CE loss as KL div given predefined target
+            # info_loss = ce_loss_forKL(sigmoid_logits, torch.ones_like(sigmoid_logits) * self.threshold)
+
+            # option 2: use MSE on mean value of all instances
             mean_logits = torch.mean(sigmoid_logits)
-            info_loss = mse_loss(mean_logits,torch.ones_like(mean_logits)*self.threshold)
+            info_loss = mse_loss(mean_logits, torch.ones_like(mean_logits) * self.threshold)
+            # option 2.1: use MSE on all single instances
+            # info_loss = mse_loss(sigmoid_logits, torch.ones_like(sigmoid_logits) * self.threshold)
 
             total_inst_loss = info_loss
             if testing:
                 Att_scores = inst_logits
-                thresh = torch.topk(Att_scores.squeeze(), min(1024,Att_scores.shape[0]), sorted=True)[0][-1]
+                thresh = torch.topk(Att_scores.squeeze(), min(1024, Att_scores.shape[0]), sorted=True)[0][-1]
                 masker = Att_scores.squeeze() >= thresh
                 # pdb.set_trace()
                 h = h[masker]
@@ -158,7 +166,6 @@ class CLAM_SB(nn.Module):
         A = torch.transpose(A, 1, 0)  # KxN
         if attention_only:
             return A
-        A_raw = A
 
         if instance_mask is not None:
             A = A.masked_fill(instance_mask == 1, -1e9)
