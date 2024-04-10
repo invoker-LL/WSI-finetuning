@@ -487,9 +487,17 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
 
     if n_classes == 2:
         auc = roc_auc_score(labels, prob[:, 1])
-    
     else:
-        auc = roc_auc_score(labels, prob, multi_class='ovr')
+        aucs = []
+        binary_labels = label_binarize(labels, classes=[i for i in range(n_classes)])
+        for class_idx in range(n_classes):
+            if class_idx in labels:
+                fpr, tpr, _ = roc_curve(binary_labels[:, class_idx], prob[:, class_idx])
+                aucs.append(calc_auc(fpr, tpr))
+            else:
+                aucs.append(float('nan'))
+
+        auc = np.nanmean(np.array(aucs))
     
     
     if writer:
@@ -558,7 +566,6 @@ def validate_clam(cur, epoch, model, loader, n_classes, early_stopping = None, w
 
     if n_classes == 2:
         auc = roc_auc_score(labels, prob[:, 1])
-        aucs = []
     else:
         aucs = []
         binary_labels = label_binarize(labels, classes=[i for i in range(n_classes)])
