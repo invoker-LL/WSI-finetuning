@@ -153,9 +153,9 @@ class CLAM_SB(nn.Module):
 
             total_inst_loss = info_loss
             if testing:
-                Att_scores = inst_logits
-                thresh = torch.topk(Att_scores.squeeze(), min(1024, Att_scores.shape[0]), sorted=True)[0][-1]
-                masker = Att_scores.squeeze() >= thresh
+                vib_scores = inst_logits
+                thresh = torch.topk(vib_scores.squeeze(), min(1024, vib_scores.shape[0]), sorted=True)[0][-1]
+                masker = vib_scores.squeeze() >= thresh
                 # pdb.set_trace()
                 h = h[masker]
             else:
@@ -181,10 +181,13 @@ class CLAM_SB(nn.Module):
         results_dict = {'instance_loss': total_inst_loss, 'inst_labels': np.array(0),
                             'inst_preds': np.array(0)}
 
+        if self.update_vib and testing:
+            return logits, Y_prob, Y_hat, vib_scores, results_dict
+
         if return_features:
             results_dict.update({'features': M})
         if instance_eval:
-            return logits, Y_prob, Y_hat, Att_scores, results_dict
+            return logits, Y_prob, Y_hat, A, results_dict
         else:
-            return logits, Y_prob, Y_hat, Att_scores, results_dict
+            return logits, Y_prob, Y_hat, A, results_dict
 
