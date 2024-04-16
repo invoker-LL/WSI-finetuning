@@ -162,7 +162,7 @@ class CLAM_SB(nn.Module):
                 z_mask = (z_mask.view(-1,1) + torch.sigmoid(instance_pred))/(1.0+self.threshold)
                 h = z_mask*h
 
-        A, h = self.attention_net(h)  # NxK        
+        A, h = self.attention_net(h)  # NxK
         A = torch.transpose(A, 1, 0)  # KxN
         if attention_only:
             return A
@@ -184,7 +184,7 @@ class CLAM_SB(nn.Module):
         if return_features:
             results_dict.update({'features': M})
         if instance_eval:
-            return logits, Y_prob, Y_hat, A, results_dict
+            return logits, Y_prob, Y_hat, Att_scores, results_dict
         else:
-            return logits, Y_prob, Y_hat, A, results_dict
+            return logits, Y_prob, Y_hat, Att_scores, results_dict
 
